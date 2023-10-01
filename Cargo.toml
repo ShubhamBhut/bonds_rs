@@ -1,0 +1,10 @@
+[package]
+name = "bonds_rs"
+version = "0.0.0"
+edition = "2021"
+description = "This crate contains the most common operations in bond valuations"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
