@@ -1,10 +1,12 @@
 [package]
 name = "bonds_rs"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 description = "This crate contains the most common operations in bond valuations"
+keywords = ["Bonds", "Finance"]
 license = "MIT"
+author = "Shubham Patel"
+repository = "https://github.com/ShubhamBhut/bonds_rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]

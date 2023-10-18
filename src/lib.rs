@@ -1,3 +1,5 @@
+#![doc = include_str!("../docs.md")]
+
 pub trait Bond {
     fn coupon_payment(&self) -> f64;
     fn present_value(&self) -> f64;
@@ -18,7 +20,7 @@ pub struct CorporateBond {
 
 pub enum CompoundingFreq {
     Annual,
-    Semiannual,
+    Biannual,
     Quarterly,
     Monthly,
 }
@@ -35,7 +37,7 @@ impl CorporateBond {
     ) -> Self {
         let effective_annual_rate = match compounding_freq {
             CompoundingFreq::Annual => 0.01 * discount_rate,
-            CompoundingFreq::Semiannual => (1.0 + 0.01 * discount_rate / 2.0).powi(2) - 1.0,
+            CompoundingFreq::Biannual => (1.0 + 0.01 * discount_rate / 2.0).powi(2) - 1.0,
             CompoundingFreq::Quarterly => (1.0 + 0.01 * discount_rate / 4.0).powi(4) - 1.0,
             CompoundingFreq::Monthly => (1.0 + 0.01 * discount_rate / 12.0).powi(12) - 1.0,
         };
@@ -56,7 +58,7 @@ impl Bond for CorporateBond {
     fn coupon_payment(&self) -> f64 {
         let annual_periods = match self.compounding_freq {
             CompoundingFreq::Annual => 1,
-            CompoundingFreq::Semiannual => 2,
+            CompoundingFreq::Biannual => 2,
             CompoundingFreq::Quarterly => 4,
             CompoundingFreq::Monthly => 12,
         };
@@ -108,7 +110,7 @@ mod tests {
 
     #[test]
     fn test_coupon_payment() {
-        let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Semiannual, None, None);
+        let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Biannual, None, None);
         assert_eq!(
             bond.coupon_payment(),
             96.35961618879344,
@@ -127,8 +129,8 @@ mod tests {
     }
 
     #[test]
-    fn test_net_present_value_semiannual() {
-        let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Semiannual, None, None);
+    fn test_net_present_value_biannual() {
+        let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Biannual, None, None);
         assert_eq!(
             bond.present_value(),
             1038.543846475518,
@@ -143,7 +145,7 @@ mod tests {
             3.0,
             2,
             1000.0,
-            CompoundingFreq::Semiannual,
+            CompoundingFreq::Biannual,
             Some(1000.0),
             Some(942.1843778588191),
         );
@@ -161,7 +163,7 @@ mod tests {
             3.0,
             2,
             1000.0,
-            CompoundingFreq::Semiannual,
+            CompoundingFreq::Biannual,
             Some(1000.0),
             Some(1100.0),
         );
