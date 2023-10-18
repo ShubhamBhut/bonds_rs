@@ -1,4 +1,5 @@
 pub trait Bond {
+    fn coupon_payment(&self) -> f64;
     fn present_value(&self) -> f64;
     fn holding_period_return(&self) -> f64;
     fn yeild_to_maturity(&self) -> f64;
@@ -52,8 +53,26 @@ impl CorporateBond {
 }
 
 impl Bond for CorporateBond {
+    fn coupon_payment(&self) -> f64 {
+        let annual_periods = match self.compounding_freq {
+            CompoundingFreq::Annual => 1,
+            CompoundingFreq::Semiannual => 2,
+            CompoundingFreq::Quarterly => 4,
+            CompoundingFreq::Monthly => 12,
+        };
+        let mut payment = 0.0;
+        for t in 1..=annual_periods * self.maturity {
+            payment += (self.face_value * 0.01 * self.coupon_rate)
+                / f64::from(annual_periods)
+                / f64::powf(
+                    1.00 + ((0.01 * self.discount_rate) / f64::from(annual_periods)),
+                    t.into(),
+                )
+        }
+        payment
+    }
     fn present_value(&self) -> f64 {
-        self.face_value
+        self.coupon_payment() + self.face_value
             / f64::powf(
                 (1.0 + (self.effective_annual_rate)).into(),
                 self.maturity.into(),
@@ -66,12 +85,12 @@ impl Bond for CorporateBond {
         //         self.current_selling_price.unwrap() / self.buying_price.unwrap(),
         //         1.0 / f64::from(self.maturity),
         //     ) - 1.0)
-            100.0
+        100.0
             * (f64::powf(
-                self.current_selling_price.unwrap() / self.buying_price.unwrap(),
+                (self.current_selling_price.unwrap()
+                    + self.coupon_payment()) / self.buying_price.unwrap(),
                 1.0,
             ) - 1.0)
-
     }
 
     fn yeild_to_maturity(&self) -> f64 {
@@ -88,11 +107,21 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_coupon_payment() {
+        let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Semiannual, None, None);
+        assert_eq!(
+            bond.coupon_payment(),
+            96.35961618879344,
+            "Coupon payment calculation is incorrect"
+        );
+    }
+
+    #[test]
     fn test_net_present_value_annual() {
         let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Annual, None, None);
         assert_eq!(
             bond.present_value(),
-            942.5959614985824,
+            1038.2693939108303,
             "Present value calculation is incorrect"
         );
     }
@@ -102,7 +131,7 @@ mod tests {
         let bond = CorporateBond::new(5.0, 3.0, 2, 1000.0, CompoundingFreq::Semiannual, None, None);
         assert_eq!(
             bond.present_value(),
-            942.1843778588191,
+            1038.543846475518,
             "Present value calculation is incorrect"
         );
     }
@@ -138,7 +167,7 @@ mod tests {
         );
         assert_eq!(
             bond.holding_period_return(),
-            10.0,
+            19.63596161887935,
             "Incorrect Holding period return"
         );
     }
