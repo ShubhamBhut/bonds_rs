@@ -1,6 +1,6 @@
 [package]
 name = "bonds_rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "This crate contains the most common operations in bond valuations"
 keywords = ["Bonds", "Finance"]
